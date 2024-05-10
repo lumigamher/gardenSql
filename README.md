@@ -1,6 +1,8 @@
-- [ ] 
-  ## Consultas sobre una tabla
+# Jardín
 
+![gardendb](Garden2.png)
+
+###     Consultas sobre una tabla
 
 1. Listado con el código de oficina y la ciudad donde hay oficinas:
 
@@ -2709,6 +2711,7 @@ WHERE o.ciudad = 'Madrid';
 1. Procedimiento para insertar un nuevo producto:
 
 ```sql
+DELIMITER $$
 CREATE PROCEDURE InsertarProducto (
     IN codigo VARCHAR(15),
     IN nombre VARCHAR(70),
@@ -2723,38 +2726,34 @@ CREATE PROCEDURE InsertarProducto (
 BEGIN
     INSERT INTO producto (codigo_producto, nombre, gama, dimensiones, proveedor, descripcion, cantidad_en_stock, precio_venta, precio_proveedor)
     VALUES (codigo, nombre, gama, dimensiones, proveedor, descripcion, cantidad_en_stock, precio_venta, precio_proveedor);
-END;
+END$$
+DELIMITER ;
 ```
 
 2. Procedimiento para actualizar el límite de crédito de un cliente:
 
 ```sql
-CREATE PROCEDURE ActualizarLimiteCredito (
-    IN codigo INT,
-    IN nuevoLimite DECIMAL(15,2)
-)
-BEGIN
-    UPDATE cliente
-    SET limite_credito = nuevoLimite
-    WHERE codigo_cliente = codigo;
-END;
+eEND
 ```
 
 3. Procedimiento para eliminar un pedido:
 
 ```sql
+DELIMITER $$
 CREATE PROCEDURE EliminarPedido (
     IN codigoPedido INT
 )
 BEGIN
     DELETE FROM pedido WHERE codigo_pedido = codigoPedido;
     DELETE FROM detalle_pedido WHERE codigo_pedido = codigoPedido;
-END;
+END$$
+DELIMITER ;
 ```
 
 4. Procedimiento para obtener el total de ventas de un producto:
 
 ```sql
+DELIMITER $$
 CREATE PROCEDURE ObtenerTotalVentasProducto (
     IN codigoProducto VARCHAR(15),
     OUT totalVentas NUMERIC(15,2)
@@ -2764,12 +2763,14 @@ BEGIN
     FROM detalle_pedido dp
     INNER JOIN pedido p ON dp.codigo_pedido = p.codigo_pedido
     WHERE dp.codigo_producto = codigoProducto;
-END;
+END$$
+DELIMITER ;
 ```
 
 5. Procedimiento para actualizar la información de un empleado:
 
 ```sql
+DELIMITER $$
 CREATE PROCEDURE ActualizarEmpleado (
     IN codigo INT,
     IN nombre VARCHAR(50),
@@ -2792,12 +2793,14 @@ BEGIN
         codigo_jefe = codigo_jefe,
         puesto = puesto
     WHERE codigo_empleado = codigo;
-END;
+END$$
+DELIMITER ;
 ```
 
 6. Procedimiento para obtener el número de pedidos realizados por un cliente:
 
 ```sql
+DELIMITER $$
 CREATE PROCEDURE ObtenerNumPedidosCliente (
     IN codigoCliente INT,
     OUT numPedidos INT
@@ -2806,12 +2809,14 @@ BEGIN
     SELECT COUNT(*) INTO numPedidos
     FROM pedido
     WHERE codigo_cliente = codigoCliente;
-END;
+END$$
+DELIMITER ;
 ```
 
 7. Procedimiento para insertar un nuevo pago:
 
 ```sql
+DELIMITER $$
 CREATE PROCEDURE InsertarPago (
     IN codigoCliente INTEGER,
     IN formaPago VARCHAR(40),
@@ -2822,27 +2827,29 @@ CREATE PROCEDURE InsertarPago (
 BEGIN
     INSERT INTO pago (codigo_cliente, forma_pago, id_transaccion, fecha_pago, total)
     VALUES (codigoCliente, formaPago, idTransaccion, fechaPago, total);
-END;
+END$$
+DELIMITER ;
 ```
 
 8. Procedimiento para obtener los productos con stock por debajo de un valor específico:
 
 ```sql
+DELIMITER $$
 CREATE PROCEDURE ObtenerProductosBajoStock (
-    IN nivelStock SMALLINT,
-    OUT productos CURSOR VARYING
+    IN nivelStock SMALLINT
 )
 BEGIN
-    OPEN productos FOR
-        SELECT nombre, cantidad_en_stock
-        FROM producto
-        WHERE cantidad_en_stock < nivelStock;
-END;
+    SELECT nombre, cantidad_en_stock
+    FROM producto
+    WHERE cantidad_en_stock < nivelStock;
+END$$
+DELIMITER ;
 ```
 
 9. Procedimiento para eliminar un cliente y sus pedidos asociados:
 
 ```sql
+DELIMITER $$
 CREATE PROCEDURE EliminarCliente (
     IN codigoCliente INT
 )
@@ -2852,23 +2859,23 @@ BEGIN
         SELECT codigo_pedido FROM pedido WHERE codigo_cliente = codigoCliente
     );
     DELETE FROM cliente WHERE codigo_cliente = codigoCliente;
-END;
+END$$
+DELIMITER ;
 ```
 
 10. Procedimiento para obtener los clientes que no han realizado ningún pedido:
 
 ```sql
-CREATE PROCEDURE ObtenerClientesSinPedidos (
-    OUT clientes CURSOR VARYING
-)
+DELIMITER $$
+CREATE PROCEDURE ObtenerClientesSinPedidos ()
 BEGIN
-    OPEN clientes FOR
-        SELECT codigo_cliente, nombre
-        FROM cliente
-        WHERE codigo_cliente NOT IN (
-            SELECT codigo_cliente
-            FROM pedido
-        );
-END;
+    SELECT codigo_cliente, nombre
+    FROM cliente
+    WHERE codigo_cliente NOT IN (
+        SELECT codigo_cliente
+        FROM pedido
+    );
+END$$
+DELIMITER ;
 ```
 
